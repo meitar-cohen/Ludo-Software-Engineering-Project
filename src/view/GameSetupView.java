@@ -155,6 +155,23 @@ public class GameSetupView extends JFrame {
 
             dispose();
         });
+        
+     // Continue -> Player Details Screen (Daniel's screen)
+        continueButton.addActionListener(e -> {
+            int selectedPlayers = (Integer) playerCountComboBox.getSelectedItem();
+            
+            JFrame playerDetailsFrame = new JFrame("Ludo - Player Details");
+            playerDetailsFrame.setSize(700, 600);
+            playerDetailsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            playerDetailsFrame.setLocationRelativeTo(null);
+            playerDetailsFrame.setResizable(false);
+            
+            String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
+            playerDetailsFrame.add(new PlayerDetailsScreen(selectedPlayers, selectedDifficulty));
+            
+            playerDetailsFrame.setVisible(true);
+            dispose(); 
+        });
 
         // Layout
         setupPanel.add(titleLabel);
