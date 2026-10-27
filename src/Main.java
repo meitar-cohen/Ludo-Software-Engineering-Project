@@ -1,5 +1,11 @@
+import javax.swing.SwingUtilities;
+import view.MainMenuView;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Ludo started!");
+        SwingUtilities.invokeLater(() -> {
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.setVisible(true);
+        });
     }
 }
