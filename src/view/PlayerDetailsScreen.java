@@ -117,6 +117,7 @@ public class PlayerDetailsScreen extends JPanel {
         errorLabel.setForeground(new Color(0, 153, 0)); 
         errorLabel.setText("Success! Loading Game...");
         
+        
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (topFrame != null) {
             String[] names = new String[numPlayers];
@@ -126,7 +127,7 @@ public class PlayerDetailsScreen extends JPanel {
                 colors[i] = (String) colorSelectors[i].getSelectedItem();
             }
             topFrame.setTitle("Ludo - Game");
-            topFrame.setContentPane(new GameScreen(names, colors, difficulty));
+            topFrame.setContentPane(new GameView(names, colors, difficulty));
             topFrame.setSize(1150, 800);
             topFrame.setLocationRelativeTo(null);
             topFrame.revalidate();

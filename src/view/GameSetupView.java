@@ -156,7 +156,6 @@ public class GameSetupView extends JFrame {
             dispose();
         });
         
-     // Continue -> Player Details Screen (Daniel's screen)
         continueButton.addActionListener(e -> {
             int selectedPlayers = (Integer) playerCountComboBox.getSelectedItem();
             
