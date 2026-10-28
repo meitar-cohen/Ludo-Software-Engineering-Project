@@ -3,11 +3,6 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * End-of-game screen - PROTOTYPE.
- * Shows a fixed ranking (in the order the players were entered),
- * the game duration and a confirmation that the game was saved to the history.
- */
 public class EndGameScreen extends JPanel {
 
     private static final Color BACKGROUND = new Color(245, 247, 250);
@@ -69,8 +64,6 @@ public class EndGameScreen extends JPanel {
             new MainMenuView().setVisible(true);
             if (w != null) w.dispose();
         });
-
-        // כפתור מעבר למסך היסטוריית המשחקים
         JButton historyButton = new JButton("View Game History");
         historyButton.setFont(new Font("Arial", Font.BOLD, 16));
         historyButton.setBackground(PRIMARY);
@@ -80,8 +73,6 @@ public class EndGameScreen extends JPanel {
         historyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         historyButton.setMaximumSize(new Dimension(300, 50));
         historyButton.setPreferredSize(new Dimension(300, 50));
-
-        // פתיחת מסך ההיסטוריה וסגירת חלון המשחק
         historyButton.addActionListener(e -> {
             Window w = SwingUtilities.getWindowAncestor(this);
             new GameHistoryView().setVisible(true);

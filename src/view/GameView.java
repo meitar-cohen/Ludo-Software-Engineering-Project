@@ -6,12 +6,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 
-/**
- * Game screen - PROTOTYPE.
- * Runs a fixed demo scenario (scripted dice results, no real game logic) so that
- * users can try a full flow: take a piece out of the castle, move it, answer a
- * question, land on a surprise square, see a turn pass, and finish the game.
- */
 public class GameView extends JPanel {
 
     private static final Color BACKGROUND = new Color(14, 22, 54);
@@ -47,7 +41,6 @@ public class GameView extends JPanel {
     private Stage stage = Stage.P1_ROLL_1;
     private int pendingSteps = 0;
 
-    /** Default constructor kept for compatibility (2 demo players, Easy). */
     public GameView() {
         this(new String[]{"Player 1", "Player 2"}, new String[]{"Red", "Blue"}, "Easy");
     }
@@ -62,7 +55,6 @@ public class GameView extends JPanel {
         setLayout(new BorderLayout(0, 14));
         setBorder(new EmptyBorder(15, 20, 18, 20));
 
-        // Header / title bar – same navy-and-purple style as the main menu.
         JPanel header = new JPanel(new BorderLayout(12, 0));
         header.setOpaque(false);
         header.setPreferredSize(new Dimension(0, 56));
@@ -97,7 +89,6 @@ public class GameView extends JPanel {
         header.add(headerBadges, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // Main two-column layout.
         JPanel arena = new JPanel(new BorderLayout(16, 0));
         arena.setOpaque(false);
         add(arena, BorderLayout.CENTER);
@@ -111,7 +102,6 @@ public class GameView extends JPanel {
         boardTitle.setForeground(INK);
         boardTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
         boardCaption.add(boardTitle, BorderLayout.WEST);
-        // Keep the legend available without using space in the sidebar.
         JButton legendButton = new JButton("Board legend");
         legendButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
         legendButton.setForeground(PRIMARY);
@@ -133,7 +123,6 @@ public class GameView extends JPanel {
         boardCard.add(board, BorderLayout.CENTER);
         arena.add(boardCard, BorderLayout.CENTER);
 
-        // Compact control dashboard – all primary controls remain visible without scrolling.
         RoundedPanel side = new RoundedPanel(Color.WHITE, 24);
         side.setLayout(new BorderLayout());
         side.setPreferredSize(new Dimension(330, 0));
@@ -174,7 +163,6 @@ public class GameView extends JPanel {
         stack.add(leftAligned(sectionLabel("GAME UPDATES")));
         stack.add(Box.createVerticalStrut(7));
 
-        // Compact instruction card: no Gemini-like sparkle and no internal scrollbar.
         RoundedPanel updateCard = new RoundedPanel(new Color(236, 242, 255), 16);
         updateCard.setLayout(new BorderLayout());
         updateCard.setBorder(new EmptyBorder(10, 12, 9, 12));
@@ -206,8 +194,6 @@ public class GameView extends JPanel {
         JButton menuButton = createButton("Main Menu", new Color(103, 117, 143));
         menuButton.addActionListener(e -> backToMenu());
         stack.add(leftAligned(menuButton));
-        // The board legend is accessible from the board header.
-        // No outer JScrollPane: the right-hand scrollbar is completely removed.
         side.add(stack, BorderLayout.CENTER);
         arena.add(side, BorderLayout.EAST);
 
@@ -231,9 +217,6 @@ public class GameView extends JPanel {
         g.dispose();
     }
 
-    // ------------------------------------------------------------------
-    // Scripted scenario
-    // ------------------------------------------------------------------
 
     private void onRoll() {
         switch (stage) {
@@ -329,7 +312,6 @@ public class GameView extends JPanel {
         board.animateFirstPieceTo(target, this::passTurn);
     }
 
-    // חלון הפתעה מעוצב - תרחיש הדגמה בלבד
     private void showSurprise() {
         Window owner = SwingUtilities.getWindowAncestor(this);
         JDialog dialog = new JDialog(owner, "Ludo - Surprise",
@@ -339,7 +321,6 @@ public class GameView extends JPanel {
         dialog.setSize(510, 390);
         dialog.setResizable(false);
 
-        // רקע סגול-כחול המתאים לשאר מסכי המשחק
         JPanel background = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -352,7 +333,6 @@ public class GameView extends JPanel {
             }
         };
 
-        // כרטיס לבן עם פינות מעוגלות
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -385,7 +365,6 @@ public class GameView extends JPanel {
         subtitle.setForeground(new Color(103, 111, 136));
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // הצגת השפעת ההפתעה בצורה ברורה, ללא אייקון נוצץ
         JPanel eventCard = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -419,7 +398,6 @@ public class GameView extends JPanel {
         eventText.add(explanation);
         eventCard.add(eventText);
 
-        // כפתור המשך מעוגל עם אפקט מעבר עכבר
         JButton continueButton = new JButton("CONTINUE GAME") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -461,7 +439,6 @@ public class GameView extends JPanel {
         dialog.setLocationRelativeTo(owner);
         dialog.setVisible(true);
 
-        // לוגיקת ההפתעה המקורית נשמרת ללא שינוי
         int target = Math.max(0, board.getFirstPieceStep() - 3);
         setStatus("Surprise! Move back 3 squares.");
         board.animateFirstPieceTo(target, this::finishScenario);
@@ -485,7 +462,6 @@ public class GameView extends JPanel {
         setStatus("Demo complete! Click End Game to see the results.");
     }
 
-    /** Shows the dice values and returns the number of steps. */
     private int showRoll(int stepDie, int boostDie) {
         int steps;
         if (easy) {
@@ -500,9 +476,6 @@ public class GameView extends JPanel {
         return steps;
     }
 
-    // ------------------------------------------------------------------
-    // Navigation
-    // ------------------------------------------------------------------
 
     private void showEndScreen() {
         gameTimer.stop();
@@ -527,9 +500,6 @@ public class GameView extends JPanel {
         if (w != null) w.dispose();
     }
 
-    // ------------------------------------------------------------------
-    // UI helpers
-    // ------------------------------------------------------------------
 
     private void refreshPlayers() {
         playersPanel.removeAll();
@@ -624,7 +594,6 @@ public class GameView extends JPanel {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     }
 
-    // Rounded cards are painted locally; no external Swing library required.
     private static class RoundedPanel extends JPanel {
         private final Color fill;
         private final int radius;

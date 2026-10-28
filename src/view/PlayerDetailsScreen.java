@@ -11,10 +11,7 @@ import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Modern player details screen for the Ludo prototype.
- * Uses only Java Swing; keeps all original validation and game navigation.
- */
+
 public class PlayerDetailsScreen extends JPanel {
 
     private final int numPlayers;
@@ -55,8 +52,6 @@ public class PlayerDetailsScreen extends JPanel {
         this(selectedPlayers, "Easy");
     }
 
-    // GameSetupView currently creates a 700x600 host window. Enlarge it for this
-    // matching two-column layout without requiring edits to GameSetupView.java.
     @Override
     public void addNotify() {
         super.addNotify();
@@ -444,7 +439,6 @@ public class PlayerDetailsScreen extends JPanel {
             g.drawString("Choose your teammates' names", 39, 247);
             g.drawString("and make every color count.", 39, 273);
 
-            // Four Ludo pawns arranged as a team (vector drawing, no images).
             int[][] spots = {{145, 400}, {268, 381}, {190, 472}, {326, 481}};
             for (int i = 0; i < Math.min(4, numPlayers); i++) {
                 int cx = spots[i][0], cy = spots[i][1];

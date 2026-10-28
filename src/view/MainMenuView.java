@@ -10,7 +10,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 
-/** Modern Ludo main menu - pure Java Swing, no external libraries. */
 public class MainMenuView extends JFrame {
 
     private JButton newGameButton;
@@ -41,7 +40,6 @@ public class MainMenuView extends JFrame {
         background.add(content);
         setContentPane(background);
 
-        // שמירה על הניווט הקיים של הפרויקט
         newGameButton.addActionListener(e -> {
             new GameSetupView().setVisible(true);
             dispose();
@@ -125,7 +123,6 @@ public class MainMenuView extends JFrame {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     }
 
-    // רקע מדורג עם צורות צבעוניות שקופות
     private static class GradientBackground extends JPanel {
         @Override
         protected void paintComponent(Graphics graphics) {
@@ -145,7 +142,6 @@ public class MainMenuView extends JFrame {
         }
     }
 
-    // אזור המיתוג: קוביות Ludo מאוירות בקוד
     private static class HeroPanel extends JPanel {
         HeroPanel() { setOpaque(false); }
 
@@ -211,7 +207,6 @@ public class MainMenuView extends JFrame {
         }
     }
 
-    // כרטיס עם פינות מעוגלות וצל
     private static class RoundedCard extends JPanel {
         RoundedCard() { setOpaque(false); }
 
@@ -230,7 +225,6 @@ public class MainMenuView extends JFrame {
         }
     }
 
-    // כפתור מעוצב עם Hover ואייקון מצויר, ללא ספרייה חיצונית
     private static class MenuButton extends JButton {
         private final int style;
         private final int iconType;
@@ -301,7 +295,7 @@ public class MainMenuView extends JFrame {
             g.setColor(color);
             g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             switch (type) {
-                case 0: // משחק חדש
+                case 0:
                     Path2D play = new Path2D.Double();
                     play.moveTo(cx - 6, cy - 9);
                     play.lineTo(cx + 8, cy);
@@ -309,17 +303,17 @@ public class MainMenuView extends JFrame {
                     play.closePath();
                     g.fill(play);
                     break;
-                case 1: // היסטוריה
+                case 1:
                     g.drawOval(cx - 10, cy - 10, 20, 20);
                     g.drawLine(cx, cy, cx, cy - 6);
                     g.drawLine(cx, cy, cx + 5, cy + 3);
                     break;
-                case 2: // ניהול
+                case 2:
                     g.drawRoundRect(cx - 10, cy - 8, 20, 16, 4, 4);
                     g.drawLine(cx - 6, cy - 3, cx + 6, cy - 3);
                     g.drawLine(cx - 6, cy + 3, cx + 2, cy + 3);
                     break;
-                default: // יציאה
+                default:
                     g.drawArc(cx - 9, cy - 9, 18, 18, 45, 270);
                     g.drawLine(cx, cy - 12, cx, cy + 1);
             }

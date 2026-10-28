@@ -11,10 +11,8 @@ public class QuestionManagementView extends JFrame {
     private static final Color BACKGROUND = new Color(245, 247, 250);
     private static final Color PRIMARY = new Color(55, 110, 220);
 
-    // רשימת שאלות בזיכרון לצורך אב הטיפוס
     private final List<Question> questions = new ArrayList<>();
 
-    // מודל הטבלה שיציג את השאלות
     private final DefaultTableModel tableModel;
 
     public QuestionManagementView() {
@@ -25,14 +23,11 @@ public class QuestionManagementView extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // יצירת שאלות לדוגמה
         loadSampleQuestions();
 
-        // רקע המסך
         JPanel background = new JPanel(new GridBagLayout());
         background.setBackground(BACKGROUND);
 
-        // כרטיס מרכזי
         JPanel card = new JPanel(new BorderLayout(0, 20));
         card.setBackground(Color.WHITE);
         card.setPreferredSize(new Dimension(900, 530));
@@ -41,7 +36,6 @@ public class QuestionManagementView extends JFrame {
             BorderFactory.createEmptyBorder(30, 30, 30, 30)
         ));
 
-        // כותרת והסבר
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setBackground(Color.WHITE);
@@ -60,7 +54,6 @@ public class QuestionManagementView extends JFrame {
         header.add(Box.createVerticalStrut(8));
         header.add(subtitle);
 
-        // יצירת טבלה שלא מאפשרת עריכה ישירה של תאים
         String[] columns = {
             "#", "Question", "Difficulty", "Correct Answer"
         };
@@ -85,7 +78,6 @@ public class QuestionManagementView extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // כפתור חזרה לתפריט הראשי
         JButton backButton = new JButton("Back to Main Menu");
         backButton.setFont(new Font("Arial", Font.BOLD, 16));
         backButton.setForeground(Color.WHITE);
@@ -99,7 +91,6 @@ public class QuestionManagementView extends JFrame {
             dispose();
         });
 
-     // כפתור להוספת שאלה חדשה
         JButton addButton = new JButton("Add Question");
         addButton.setFont(new Font("Arial", Font.BOLD, 16));
         addButton.setForeground(Color.WHITE);
@@ -108,10 +99,8 @@ public class QuestionManagementView extends JFrame {
         addButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         addButton.setPreferredSize(new Dimension(180, 45));
 
-        // פתיחת טופס הוספת שאלה
         addButton.addActionListener(e -> showAddQuestionDialog());
         
-     // כפתור לעריכת שאלה קיימת
         JButton editButton = new JButton("Edit Question");
         editButton.setFont(new Font("Arial", Font.BOLD, 16));
         editButton.setForeground(Color.WHITE);
@@ -120,12 +109,10 @@ public class QuestionManagementView extends JFrame {
         editButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editButton.setPreferredSize(new Dimension(180, 45));
 
-        // פתיחת טופס עריכה עבור השאלה שנבחרה בטבלה
         editButton.addActionListener(e -> {
 
             int selectedRow = table.getSelectedRow();
 
-            // בדיקה שהמשתמש בחר שאלה
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(
                     this,
@@ -136,15 +123,12 @@ public class QuestionManagementView extends JFrame {
                 return;
             }
 
-            // קבלת מיקום השאלה ברשימה
             int modelRow = table.convertRowIndexToModel(selectedRow);
 
-            // פתיחת טופס העריכה
             showEditQuestionDialog(modelRow);
         });
 
         
-     // כפתור למחיקת שאלה קיימת
         JButton deleteButton = new JButton("Delete Question");
         deleteButton.setFont(new Font("Arial", Font.BOLD, 16));
         deleteButton.setForeground(Color.WHITE);
@@ -153,12 +137,10 @@ public class QuestionManagementView extends JFrame {
         deleteButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         deleteButton.setPreferredSize(new Dimension(180, 45));
 
-        // מחיקת השאלה שנבחרה בטבלה
         deleteButton.addActionListener(e -> {
 
             int selectedRow = table.getSelectedRow();
 
-            // בדיקה שהמנהל בחר שאלה למחיקה
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(
                     this,
@@ -169,11 +151,9 @@ public class QuestionManagementView extends JFrame {
                 return;
             }
 
-            // מציאת השאלה המתאימה ברשימה
             int questionIndex = table.convertRowIndexToModel(selectedRow);
             Question selectedQuestion = questions.get(questionIndex);
 
-            // בקשת אישור לפני מחיקת השאלה
             int confirmation = JOptionPane.showConfirmDialog(
                 this,
                 "Are you sure you want to delete this question?\n\n"
@@ -183,15 +163,12 @@ public class QuestionManagementView extends JFrame {
                 JOptionPane.WARNING_MESSAGE
             );
 
-            // ביטול המחיקה אם המנהל לא אישר
             if (confirmation != JOptionPane.YES_OPTION) {
                 return;
             }
 
-            // מחיקת השאלה מהמאגר הזמני
             questions.remove(questionIndex);
 
-            // עדכון הטבלה לאחר המחיקה
             refreshTable();
 
             JOptionPane.showMessageDialog(
@@ -202,7 +179,6 @@ public class QuestionManagementView extends JFrame {
         
         
         
-        // אזור תחתון לכפתורים
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         bottomPanel.setBackground(Color.WHITE);
         bottomPanel.add(addButton);
@@ -210,7 +186,6 @@ public class QuestionManagementView extends JFrame {
         bottomPanel.add(deleteButton);
         bottomPanel.add(backButton);
 
-        // סידור רכיבי המסך
         card.add(header, BorderLayout.NORTH);
         card.add(scrollPane, BorderLayout.CENTER);
         card.add(bottomPanel, BorderLayout.SOUTH);
@@ -218,16 +193,13 @@ public class QuestionManagementView extends JFrame {
         background.add(card);
         add(background);
 
-        // הצגת השאלות בטבלה
         refreshTable();
     }
 
-    // פתיחת טופס להוספת שאלה חדשה
     private void showAddQuestionDialog() {
 
             JTextField questionField = new JTextField(25);
 
-            // ארבע תשובות אפשריות
             JTextField[] answerFields = new JTextField[4];
 
             JPanel form = new JPanel(new GridLayout(0, 1, 5, 7));
@@ -242,7 +214,6 @@ public class QuestionManagementView extends JFrame {
                 form.add(answerFields[i]);
             }
 
-            // בחירת התשובה הנכונה
             JComboBox<String> correctAnswerBox = new JComboBox<>(
                 new String[]{"Answer 1", "Answer 2", "Answer 3", "Answer 4"}
             );
@@ -250,7 +221,6 @@ public class QuestionManagementView extends JFrame {
             form.add(new JLabel("Correct Answer:"));
             form.add(correctAnswerBox);
 
-            // בחירת רמת הקושי
             JComboBox<String> difficultyBox = new JComboBox<>(
                 new String[]{"Easy", "Medium", "Hard"}
             );
@@ -258,7 +228,6 @@ public class QuestionManagementView extends JFrame {
             form.add(new JLabel("Difficulty:"));
             form.add(difficultyBox);
 
-            // הצגת הטופס עד לשמירת נתונים תקינים או ביטול
             while (true) {
 
                 int result = JOptionPane.showConfirmDialog(
@@ -269,7 +238,6 @@ public class QuestionManagementView extends JFrame {
                     JOptionPane.PLAIN_MESSAGE
                 );
 
-                // ביטול הפעולה ללא הוספת שאלה
                 if (result != JOptionPane.OK_OPTION) {
                     return;
                 }
@@ -279,7 +247,6 @@ public class QuestionManagementView extends JFrame {
 
                 boolean valid = !questionText.isEmpty();
 
-                // בדיקה שכל ארבע התשובות מולאו
                 for (int i = 0; i < 4; i++) {
                     answers[i] = answerFields[i].getText().trim();
 
@@ -303,7 +270,6 @@ public class QuestionManagementView extends JFrame {
                 String difficulty =
                     (String) difficultyBox.getSelectedItem();
 
-                // הוספת השאלה למאגר הזמני בזיכרון
                 questions.add(new Question(
                     questionText,
                     answers,
@@ -311,7 +277,6 @@ public class QuestionManagementView extends JFrame {
                     difficulty
                 ));
 
-                // עדכון הטבלה באופן מיידי
                 refreshTable();
 
                 JOptionPane.showMessageDialog(
@@ -324,18 +289,14 @@ public class QuestionManagementView extends JFrame {
         }
         
         
-     // פתיחת טופס לעריכת שאלה קיימת
         private void showEditQuestionDialog(int questionIndex) {
 
-            // שליפת השאלה שנבחרה
             Question existingQuestion = questions.get(questionIndex);
 
-            // הצגת נוסח השאלה הנוכחי
             JTextField questionField = new JTextField(
                 existingQuestion.text, 25
             );
 
-            // הצגת ארבע התשובות הנוכחיות
             JTextField[] answerFields = new JTextField[4];
 
             JPanel form = new JPanel(new GridLayout(0, 1, 5, 7));
@@ -353,7 +314,6 @@ public class QuestionManagementView extends JFrame {
                 form.add(answerFields[i]);
             }
 
-            // בחירת התשובה הנכונה הנוכחית
             JComboBox<String> correctAnswerBox = new JComboBox<>(
                 new String[]{
                     "Answer 1",
@@ -370,7 +330,6 @@ public class QuestionManagementView extends JFrame {
             form.add(new JLabel("Correct Answer:"));
             form.add(correctAnswerBox);
 
-            // הצגת רמת הקושי הנוכחית
             JComboBox<String> difficultyBox = new JComboBox<>(
                 new String[]{"Easy", "Medium", "Hard"}
             );
@@ -380,7 +339,6 @@ public class QuestionManagementView extends JFrame {
             form.add(new JLabel("Difficulty:"));
             form.add(difficultyBox);
 
-            // הצגת הטופס עד לשמירת נתונים תקינים או ביטול
             while (true) {
 
                 int result = JOptionPane.showConfirmDialog(
@@ -391,7 +349,6 @@ public class QuestionManagementView extends JFrame {
                     JOptionPane.PLAIN_MESSAGE
                 );
 
-                // ביטול העריכה ללא שינוי השאלה
                 if (result != JOptionPane.OK_OPTION) {
                     return;
                 }
@@ -401,7 +358,6 @@ public class QuestionManagementView extends JFrame {
 
                 boolean valid = !questionText.isEmpty();
 
-                // בדיקה שכל ארבע התשובות מולאו
                 for (int i = 0; i < 4; i++) {
 
                     answers[i] = answerFields[i].getText().trim();
@@ -426,7 +382,6 @@ public class QuestionManagementView extends JFrame {
                 String difficulty =
                     (String) difficultyBox.getSelectedItem();
 
-                // עדכון השאלה הקיימת בזיכרון
                 questions.set(questionIndex, new Question(
                     questionText,
                     answers,
@@ -434,7 +389,6 @@ public class QuestionManagementView extends JFrame {
                     difficulty
                 ));
 
-                // רענון הטבלה לאחר העריכה
                 refreshTable();
 
                 JOptionPane.showMessageDialog(
@@ -448,7 +402,6 @@ public class QuestionManagementView extends JFrame {
             }
         }
 
-    // טעינת שאלות לדוגמה
     private void loadSampleQuestions() {
 
     	
@@ -477,7 +430,6 @@ public class QuestionManagementView extends JFrame {
         ));
     }
 
-    // רענון הטבלה מתוך רשימת השאלות
     private void refreshTable() {
 
         tableModel.setRowCount(0);
@@ -495,7 +447,6 @@ public class QuestionManagementView extends JFrame {
         }
     }
 
-    // ייצוג שאלה במאגר הזמני
     private static class Question {
 
         String text;

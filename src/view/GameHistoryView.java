@@ -10,14 +10,12 @@ public class GameHistoryView extends JFrame {
     private static final Color BACKGROUND = new Color(245, 247, 250);
     private static final Color PRIMARY = new Color(55, 110, 220);
 
-    // נתוני הדגמה בלבד - עדיין אין שמירה לקובץ אמיתי
     private final Object[][] sampleGames = {
         {"G-003", "27/10/2026 18:35", "Medium", "Noa", "00:23:15"},
         {"G-002", "26/10/2026 14:10", "Easy", "Meitar", "00:15:42"},
         {"G-001", "25/10/2026 20:05", "Hard", "Daniel", "00:31:04"}
     };
 
-    // דירוג המשתתפים בכל משחק לדוגמה
     private final String[][] rankings = {
         {"Noa", "Meitar", "Maor", "Daniel"},
         {"Meitar", "Daniel", "Maor"},
@@ -42,7 +40,6 @@ public class GameHistoryView extends JFrame {
             BorderFactory.createEmptyBorder(30, 35, 30, 35)
         ));
 
-        // כותרת המסך
         JLabel title = new JLabel("GAME HISTORY");
         title.setFont(new Font("Arial", Font.BOLD, 36));
         title.setForeground(PRIMARY);
@@ -53,7 +50,6 @@ public class GameHistoryView extends JFrame {
         subtitle.setForeground(new Color(125, 130, 140));
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // יצירת טבלת המשחקים
         String[] columns = {
             "Game ID", "Date & Time", "Difficulty",
             "Winner", "Duration"
@@ -79,7 +75,6 @@ public class GameHistoryView extends JFrame {
         scrollPane.setMaximumSize(new Dimension(725, 160));
         scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // אזור הצגת דירוג המשתתפים במשחק שנבחר
         JTextArea rankingDetails = new JTextArea();
         rankingDetails.setEditable(false);
         rankingDetails.setFocusable(false);
@@ -93,7 +88,6 @@ public class GameHistoryView extends JFrame {
         rankingDetails.setMaximumSize(new Dimension(725, 125));
         rankingDetails.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // הצגת הדירוג המלא בעת בחירת משחק בטבלה
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() >= 0) {
                 int index = table.convertRowIndexToModel(table.getSelectedRow());
@@ -115,10 +109,8 @@ public class GameHistoryView extends JFrame {
             }
         });
 
-        // בחירת המשחק הראשון כברירת מחדל
         table.setRowSelectionInterval(0, 0);
 
-        // כפתור חזרה לתפריט הראשי
         JButton backButton = new JButton("Back to Main Menu");
         backButton.setFont(new Font("Arial", Font.BOLD, 16));
         backButton.setForeground(Color.WHITE);
@@ -134,7 +126,6 @@ public class GameHistoryView extends JFrame {
             dispose();
         });
 
-        // סידור רכיבי המסך
         card.add(title);
         card.add(Box.createVerticalStrut(6));
         card.add(subtitle);

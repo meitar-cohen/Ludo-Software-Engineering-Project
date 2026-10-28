@@ -11,16 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Prototype board for the Ludo game screen.
- * Draws the board for the selected difficulty (Easy 15x15, Medium with an extra
- * ring of 64 squares, Hard with extra rings of 64 and 72 squares), the special
- * squares, the castles and the pieces. Only the first player's piece moves
- * (scripted prototype - no real game logic).
- */
-public class BoardPanel extends JPanel {
 
-    // Corner order: 0 = top-left, 1 = top-right, 2 = bottom-right, 3 = bottom-left
+public class BoardPanel extends JPanel {
     public static final String[] CORNER_COLOR_NAMES = {"Green", "Yellow", "Blue", "Red"};
 
     public static final Color RED = new Color(220, 55, 55);
@@ -43,7 +35,7 @@ public class BoardPanel extends JPanel {
     private static class Special {
         Type type;
         Color color;
-        int dir; // arrows: 0 right, 1 down, 2 left, 3 up
+        int dir;
         Special(Type type, Color color, int dir) {
             this.type = type;
             this.color = color;
@@ -57,8 +49,8 @@ public class BoardPanel extends JPanel {
     }
 
     private final String difficulty;
-    private final int rings;   // 0 easy, 1 medium, 2 hard
-    private final int size;    // board size in cells
+    private final int rings;
+    private final int size;
     private final int p1Corner;
     private final boolean[] activeCorner = new boolean[4];
     private final int[] piecesInCastle = new int[4];
@@ -124,15 +116,12 @@ public class BoardPanel extends JPanel {
         this.listener = listener;
     }
 
-    // ------------------------------------------------------------------
-    // Board structure
-    // ------------------------------------------------------------------
 
     private Point inner(int c, int r) {
         return new Point(c + rings, r + rings);
     }
 
-    /** The 52 squares of the shared path of the basic board, clockwise. */
+    
     private List<Point> innerPath() {
         List<Point> p = new ArrayList<>();
         for (int c = 1; c <= 5; c++) p.add(inner(c, 6));
@@ -154,7 +143,7 @@ public class BoardPanel extends JPanel {
         return p;
     }
 
-    /** Perimeter squares of an outer ring, clockwise from its top-left corner. */
+    
     private List<Point> ringPath(int ring) {
         int n = size - 2 * ring;
         int o = ring;
@@ -176,16 +165,12 @@ public class BoardPanel extends JPanel {
     private void buildBoard() {
         List<Point> inner = innerPath();
         int[] startIdx = {0, 13, 26, 39};
-
-        // Home paths (5 coloured squares leading to the centre)
         for (int i = 1; i <= 5; i++) {
             homeCells.put(inner(i, 7), GREEN);
             homeCells.put(inner(7, i), YELLOW);
             homeCells.put(inner(14 - i, 7), BLUE);
             homeCells.put(inner(7, 14 - i), RED);
         }
-
-        // Inner board special squares (all levels)
         for (int c = 0; c < 4; c++) {
             Point star = inner.get((startIdx[c] + 8) % 52);
             specials.put(star, new Special(Type.STAR, null, 0));
@@ -203,9 +188,6 @@ public class BoardPanel extends JPanel {
             }
             return;
         }
-
-        // Outer rings (Medium / Hard). Positions are fixed for the prototype;
-        // in the real system protection, question and surprise squares are random.
         List<Point> outer = ringPath(0);
         int k = p1Corner;
         Color[] qLevels = {Q_EASY, Q_MEDIUM, Q_HARD, Q_EASY};
@@ -241,9 +223,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Scripted piece control (used by GameScreen)
-    // ------------------------------------------------------------------
 
     public void highlightCastlePieces() {
         highlightCastle = true;
@@ -274,7 +253,7 @@ public class BoardPanel extends JPanel {
         return p1Step;
     }
 
-    /** Moves the first player's piece one square at a time to the target step. */
+    
     public void animateFirstPieceTo(int targetStep, Runnable onDone) {
         clearHighlight();
         if (animation != null && animation.isRunning()) {
@@ -295,9 +274,6 @@ public class BoardPanel extends JPanel {
         animation.start();
     }
 
-    // ------------------------------------------------------------------
-    // Mouse handling
-    // ------------------------------------------------------------------
 
     private int cellSize() {
         return Math.max(10, Math.min(getWidth(), getHeight()) / size);
@@ -348,9 +324,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Painting
-    // ------------------------------------------------------------------
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -362,21 +335,15 @@ public class BoardPanel extends JPanel {
         int cs = cellSize();
         int ox = originX();
         int oy = originY();
-
-        // Soft frame around the board, matching the navy-and-lavender UI.
         g2.setColor(new Color(31, 47, 95, 18));
         g2.fillRoundRect(ox - 7, oy - 5, cs * size + 14, cs * size + 14, 18, 18);
         g2.setColor(BOARD_BG);
         g2.fillRect(ox, oy, cs * size, cs * size);
-
-        // Outer rings
         for (int ring = 0; ring < rings; ring++) {
             for (Point p : ringPath(ring)) {
                 drawCell(g2, p, Color.WHITE);
             }
         }
-
-        // Track and home path of the basic board
         for (int c = 0; c < 15; c++) {
             for (int r = 0; r < 15; r++) {
                 boolean vertical = c >= 6 && c <= 8 && (r < 6 || r > 8);
@@ -388,21 +355,13 @@ public class BoardPanel extends JPanel {
                 }
             }
         }
-
-        // Castles
         for (int corner = 0; corner < 4; corner++) {
             drawCastle(g2, corner);
         }
-
-        // Centre (finish)
         drawCentre(g2);
-
-        // Special squares
         for (Map.Entry<Point, Special> e : specials.entrySet()) {
             drawSpecial(g2, e.getKey(), e.getValue());
         }
-
-        // Pieces in castles
         for (int corner = 0; corner < 4; corner++) {
             for (int s = 0; s < piecesInCastle[corner]; s++) {
                 double[] c = slotCenter(corner, s);
@@ -410,8 +369,6 @@ public class BoardPanel extends JPanel {
                 drawPiece(g2, c[0], c[1], cs, CORNER_COLORS[corner], hl);
             }
         }
-
-        // First player's moving piece
         if (p1PieceOnBoard) {
             Point cell = p1Path.get(p1Step);
             drawPiece(g2, ox + (cell.x + 0.5) * cs, oy + (cell.y + 0.5) * cs, cs,
@@ -423,8 +380,6 @@ public class BoardPanel extends JPanel {
         g2.drawRect(ox, oy, cs * size, cs * size);
         g2.dispose();
     }
-
-    // Track cells remain in the exact same positions, so click detection is unchanged.
     private void drawCell(Graphics2D g2, Point p, Color fill) {
         int cs = cellSize();
         int x = originX() + p.x * cs;
@@ -435,8 +390,6 @@ public class BoardPanel extends JPanel {
         g2.setStroke(new BasicStroke(0.9f));
         g2.drawRect(x, y, cs, cs);
     }
-
-    // Pastel castles with a clean inner area; piece positions are untouched.
     private void drawCastle(Graphics2D g2, int corner) {
         int cs = cellSize();
         Point o = castleOrigin(corner);
@@ -483,8 +436,6 @@ public class BoardPanel extends JPanel {
         fillTriangle(g2, YELLOW, x0, y0, x1, y0, cx, cy);
         fillTriangle(g2, BLUE, x1, y0, x1, y1, cx, cy);
         fillTriangle(g2, RED, x0, y1, x1, y1, cx, cy);
-
-        // The finish marker stays within the middle 3x3 cells.
         int d = Math.max(18, (int) (cs * 1.04));
         int x = (int) cx - d / 2;
         int y = (int) cy - d / 2;
@@ -514,9 +465,6 @@ public class BoardPanel extends JPanel {
         g2.setColor(Color.WHITE);
         g2.draw(t);
     }
-
-    // Clear, high-contrast marks on every special square.
-    // Easy has START / STAR / ARROW; Medium and Hard additionally have ? and !.
     private void drawSpecial(Graphics2D g2, Point p, Special s) {
         int cs = cellSize();
         int x = originX() + p.x * cs;

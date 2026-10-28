@@ -8,10 +8,9 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 
-/** Modern Ludo game setup screen. Pure Java Swing; no external libraries. */
+
 public class GameSetupView extends JFrame {
 
-    // Keep the original combo-box API: selection cards synchronize with these models.
     private final JComboBox<Integer> playerCountComboBox =
             new JComboBox<>(new Integer[]{2, 3, 4});
     private final JComboBox<String> difficultyComboBox =
@@ -46,7 +45,6 @@ public class GameSetupView extends JFrame {
         background.add(layout);
         setContentPane(background);
 
-        // Keep selection state in sync, including external use of the original getters.
         playerCountComboBox.addActionListener(e -> refreshSelectedCards());
         difficultyComboBox.addActionListener(e -> refreshSelectedCards());
         refreshSelectedCards();
@@ -223,7 +221,6 @@ public class GameSetupView extends JFrame {
     }
 
 
-    // Visual illustration in the same style as the new main menu.
     private static class SetupHero extends JPanel {
         SetupHero() { setOpaque(false); }
 
@@ -246,7 +243,6 @@ public class GameSetupView extends JFrame {
             g.drawString("Pick your crew, set the challenge,", 39, 257);
             g.drawString("and get ready to roll!", 39, 284);
 
-            // Draw a mini Ludo-inspired board; no external assets needed.
             int bx = 110, by = 320, size = 210, half = size / 2;
             g.setColor(new Color(4, 9, 29, 65));
             g.fillRoundRect(bx + 9, by + 12, size, size, 26, 26);
