@@ -1,151 +1,322 @@
-
 package view;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
 
+/**
+ * Game history - interactive prototype with sample data only.
+ * The games are not persisted to a file or database.
+ */
 public class GameHistoryView extends JFrame {
 
-    private static final Color BACKGROUND = new Color(245, 247, 250);
-    private static final Color PRIMARY = new Color(55, 110, 220);
+    private static final Color NAVY = new Color(20, 27, 65);
+    private static final Color BLUE = new Color(75, 110, 248);
+    private static final Color MUTED = new Color(112, 124, 151);
+    private static final Color LIGHT = new Color(243, 246, 253);
+    private static final Font FONT = new Font("Segoe UI", Font.PLAIN, 14);
 
-    // נתוני הדגמה בלבד - עדיין אין שמירה לקובץ אמיתי
+    // Original prototype entries - unchanged, no persistent storage
     private final Object[][] sampleGames = {
         {"G-003", "27/10/2026 18:35", "Medium", "Noa", "00:23:15"},
         {"G-002", "26/10/2026 14:10", "Easy", "Meitar", "00:15:42"},
         {"G-001", "25/10/2026 20:05", "Hard", "Daniel", "00:31:04"}
     };
 
-    // דירוג המשתתפים בכל משחק לדוגמה
     private final String[][] rankings = {
         {"Noa", "Meitar", "Maor", "Daniel"},
         {"Meitar", "Daniel", "Maor"},
         {"Daniel", "Noa"}
     };
 
+    private final JPanel rankingCards = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+    private final JLabel rankingGameLabel = new JLabel();
+
     public GameHistoryView() {
         setTitle("Ludo - Game History");
-        setSize(850, 620);
+        setSize(1090, 730);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        JPanel backgroundPanel = new JPanel(new GridBagLayout());
-        backgroundPanel.setBackground(BACKGROUND);
+        JPanel background = new GradientBackground();
+        background.setLayout(new GridBagLayout());
 
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 225, 235)),
-            BorderFactory.createEmptyBorder(30, 35, 30, 35)
-        ));
+        RoundedSurface main = new RoundedSurface(Color.WHITE, 30);
+        main.setPreferredSize(new Dimension(970, 640));
+        main.setLayout(new BorderLayout(0, 22));
+        main.setBorder(new EmptyBorder(31, 37, 28, 37));
+        background.add(main);
 
-        // כותרת המסך
-        JLabel title = new JLabel("GAME HISTORY");
-        title.setFont(new Font("Arial", Font.BOLD, 36));
-        title.setForeground(PRIMARY);
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        main.add(createHeader(), BorderLayout.NORTH);
 
-        JLabel subtitle = new JLabel("Sample games - prototype preview");
-        subtitle.setFont(new Font("Arial", Font.PLAIN, 15));
-        subtitle.setForeground(new Color(125, 130, 140));
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.add(createGamesTable());
+        content.add(Box.createVerticalStrut(20));
+        content.add(createRankingPanel());
+        main.add(content, BorderLayout.CENTER);
+        main.add(createFooter(), BorderLayout.SOUTH);
 
-        // יצירת טבלת המשחקים
-        String[] columns = {
-            "Game ID", "Date & Time", "Difficulty",
-            "Winner", "Duration"
-        };
+        setContentPane(background);
+    }
 
+    private JPanel createHeader() {
+        JPanel header = new JPanel(new BorderLayout(15, 0));
+        header.setOpaque(false);
+
+        JPanel headings = new JPanel();
+        headings.setLayout(new BoxLayout(headings, BoxLayout.Y_AXIS));
+        headings.setOpaque(false);
+
+        JLabel kicker = new JLabel("YOUR LUDO JOURNEY");
+        kicker.setForeground(BLUE);
+        kicker.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        kicker.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headings.add(kicker);
+        headings.add(Box.createVerticalStrut(6));
+
+        JLabel title = new JLabel("Game History");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 35));
+        title.setForeground(NAVY);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headings.add(title);
+        headings.add(Box.createVerticalStrut(3));
+
+        JLabel subtitle = new JLabel("Explore past games and their final standings.");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(MUTED);
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headings.add(subtitle);
+        header.add(headings, BorderLayout.CENTER);
+
+        JLabel count = new JLabel("  3 SAMPLE GAMES  ");
+        count.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        count.setForeground(BLUE);
+        count.setOpaque(true);
+        count.setBackground(new Color(232, 237, 255));
+        count.setBorder(new EmptyBorder(10, 11, 10, 11));
+        JPanel badgeArea = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 3));
+        badgeArea.setOpaque(false);
+        badgeArea.add(count);
+        header.add(badgeArea, BorderLayout.EAST);
+        return header;
+    }
+
+    private JComponent createGamesTable() {
+        RoundedSurface container = new RoundedSurface(LIGHT, 21);
+        container.setLayout(new BorderLayout());
+        container.setMaximumSize(new Dimension(Integer.MAX_VALUE, 219));
+        container.setPreferredSize(new Dimension(880, 219));
+        container.setBorder(new EmptyBorder(10, 13, 10, 13));
+
+        String[] columns = {"GAME", "DATE & TIME", "DIFFICULTY", "WINNER", "DURATION"};
         DefaultTableModel model = new DefaultTableModel(sampleGames, columns) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            @Override public boolean isCellEditable(int row, int column) { return false; }
         };
 
         JTable table = new JTable(model);
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
-        table.setRowHeight(34);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setRowHeight(49);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setFocusable(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-        table.getColumnModel().getColumn(1).setPreferredWidth(160);
-        table.getColumnModel().getColumn(0).setPreferredWidth(75);
+        table.setSelectionBackground(new Color(227, 234, 255));
+        table.setSelectionForeground(NAVY);
+        table.setBackground(Color.WHITE);
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(725, 160));
-        scrollPane.setMaximumSize(new Dimension(725, 160));
-        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+        table.getTableHeader().setBackground(new Color(238, 242, 251));
+        table.getTableHeader().setForeground(MUTED);
+        table.getTableHeader().setPreferredSize(new Dimension(100, 39));
+        table.getTableHeader().setReorderingAllowed(false);
 
-        // אזור הצגת דירוג המשתתפים במשחק שנבחר
-        JTextArea rankingDetails = new JTextArea();
-        rankingDetails.setEditable(false);
-        rankingDetails.setFocusable(false);
-        rankingDetails.setFont(new Font("Arial", Font.PLAIN, 16));
-        rankingDetails.setBackground(new Color(248, 249, 252));
-        rankingDetails.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 225, 235)),
-            BorderFactory.createEmptyBorder(12, 15, 12, 15)
-        ));
-        rankingDetails.setPreferredSize(new Dimension(725, 125));
-        rankingDetails.setMaximumSize(new Dimension(725, 125));
-        rankingDetails.setAlignmentX(Component.CENTER_ALIGNMENT);
+        int[] widths = {90, 200, 145, 125, 122};
+        for (int i = 0; i < columns.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+            table.getColumnModel().getColumn(i).setCellRenderer(new HistoryCellRenderer(i));
+        }
 
-        // הצגת הדירוג המלא בעת בחירת משחק בטבלה
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        container.add(scroll, BorderLayout.CENTER);
+
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() >= 0) {
                 int index = table.convertRowIndexToModel(table.getSelectedRow());
-
-                StringBuilder text = new StringBuilder(
-                    "FINAL RANKING - " + sampleGames[index][0]
-                );
-
-                String[] places = {"1st", "2nd", "3rd", "4th"};
-
-                for (int i = 0; i < rankings[index].length; i++) {
-                    text.append("\n")
-                        .append(places[i])
-                        .append(": ")
-                        .append(rankings[index][i]);
-                }
-
-                rankingDetails.setText(text.toString());
+                showRanking(index);
             }
         });
-
-        // בחירת המשחק הראשון כברירת מחדל
         table.setRowSelectionInterval(0, 0);
+        return container;
+    }
 
-        // כפתור חזרה לתפריט הראשי
-        JButton backButton = new JButton("Back to Main Menu");
-        backButton.setFont(new Font("Arial", Font.BOLD, 16));
-        backButton.setForeground(Color.WHITE);
-        backButton.setBackground(PRIMARY);
-        backButton.setFocusPainted(false);
-        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        backButton.setMaximumSize(new Dimension(300, 50));
-        backButton.setPreferredSize(new Dimension(300, 50));
+    private JComponent createRankingPanel() {
+        RoundedSurface panel = new RoundedSurface(new Color(247, 249, 254), 21);
+        panel.setLayout(new BorderLayout(0, 12));
+        panel.setPreferredSize(new Dimension(880, 177));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 177));
+        panel.setBorder(new EmptyBorder(17, 19, 15, 19));
 
-        backButton.addActionListener(e -> {
+        JPanel head = new JPanel(new BorderLayout());
+        head.setOpaque(false);
+        JLabel title = new JLabel("FINAL STANDINGS");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        title.setForeground(NAVY);
+        head.add(title, BorderLayout.WEST);
+        rankingGameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        rankingGameLabel.setForeground(MUTED);
+        head.add(rankingGameLabel, BorderLayout.EAST);
+        panel.add(head, BorderLayout.NORTH);
+
+        rankingCards.setOpaque(false);
+        panel.add(rankingCards, BorderLayout.CENTER);
+        showRanking(0);
+        return panel;
+    }
+
+    private void showRanking(int index) {
+        rankingCards.removeAll();
+        rankingGameLabel.setText(sampleGames[index][0] + "  |  " + sampleGames[index][2]);
+        String[] places = {"1ST", "2ND", "3RD", "4TH"};
+        // Rank colors: winner green, second blue, third orange, fourth neutral.
+        Color[] colors = {
+            new Color(216, 246, 229),
+            new Color(227, 236, 255),
+            new Color(255, 234, 214),
+            new Color(236, 240, 247)
+        };
+        for (int i = 0; i < rankings[index].length && i < 4; i++) {
+            RoundedSurface player = new RoundedSurface(colors[i], 17);
+            player.setLayout(new BorderLayout(0, 5));
+            player.setPreferredSize(new Dimension(187, 80));
+            player.setBorder(new EmptyBorder(12, 15, 10, 15));
+
+            JLabel position = new JLabel(i == 0 ? "★  " + places[i] + " PLACE" : places[i] + " PLACE");
+            position.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            position.setForeground(i == 0 ? new Color(23, 124, 77) : new Color(76, 86, 113));
+            player.add(position, BorderLayout.NORTH);
+
+            JLabel name = new JLabel(rankings[index][i]);
+            name.setFont(new Font("Segoe UI", Font.BOLD, 17));
+            name.setForeground(i == 0 ? new Color(19, 97, 63) : NAVY);
+            player.add(name, BorderLayout.CENTER);
+            rankingCards.add(player);
+        }
+        rankingCards.revalidate();
+        rankingCards.repaint();
+    }
+
+    private JComponent createFooter() {
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
+        JLabel note = new JLabel("PROTOTYPE PREVIEW   ·   SAMPLE DATA ONLY");
+        note.setForeground(MUTED);
+        note.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        footer.add(note, BorderLayout.WEST);
+
+        JButton back = new ModernButton("Back to Main Menu");
+        back.addActionListener(e -> {
             new MainMenuView().setVisible(true);
             dispose();
         });
+        footer.add(back, BorderLayout.EAST);
+        return footer;
+    }
 
-        // סידור רכיבי המסך
-        card.add(title);
-        card.add(Box.createVerticalStrut(6));
-        card.add(subtitle);
-        card.add(Box.createVerticalStrut(22));
-        card.add(scrollPane);
-        card.add(Box.createVerticalStrut(15));
-        card.add(rankingDetails);
-        card.add(Box.createVerticalStrut(20));
-        card.add(backButton);
+    private static void quality(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    }
 
-        backgroundPanel.add(card);
-        add(backgroundPanel);
+    private static class GradientBackground extends JPanel {
+        @Override protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g = (Graphics2D) graphics.create();
+            quality(g);
+            g.setPaint(new GradientPaint(0, 0, new Color(17, 24, 60),
+                    getWidth(), getHeight(), new Color(47, 43, 105)));
+            g.fillRect(0, 0, getWidth(), getHeight());
+            g.setColor(new Color(112, 110, 233, 38));
+            g.fillOval(-160, -140, 510, 510);
+            g.setColor(new Color(83, 154, 255, 27));
+            g.fillOval(650, 370, 500, 500);
+            g.dispose();
+        }
+    }
+
+    private static class RoundedSurface extends JPanel {
+        private final Color fill;
+        private final int radius;
+        RoundedSurface(Color fill, int radius) {
+            this.fill = fill;
+            this.radius = radius;
+            setOpaque(false);
+        }
+        @Override protected void paintComponent(Graphics graphics) {
+            Graphics2D g = (Graphics2D) graphics.create();
+            quality(g);
+            g.setColor(fill);
+            g.fill(new RoundRectangle2D.Double(0, 0,
+                getWidth() - 1, getHeight() - 1, radius, radius));
+            g.dispose();
+            super.paintComponent(graphics);
+        }
+    }
+
+    private static class ModernButton extends JButton {
+        private boolean hovered;
+        ModernButton(String text) {
+            super(text);
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
+            setForeground(Color.WHITE);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setPreferredSize(new Dimension(205, 46));
+            addMouseListener(new MouseAdapter() {
+                @Override public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                @Override public void mouseExited(MouseEvent e) { hovered = false; repaint(); }
+            });
+        }
+        @Override protected void paintComponent(Graphics graphics) {
+            Graphics2D g = (Graphics2D) graphics.create();
+            quality(g);
+            g.setColor(hovered ? new Color(58, 91, 226) : BLUE);
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+            g.dispose();
+            super.paintComponent(graphics);
+        }
+    }
+
+    private static class HistoryCellRenderer extends DefaultTableCellRenderer {
+        private final int column;
+        HistoryCellRenderer(int column) { this.column = column; }
+        @Override public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean selected, boolean focus, int row, int col) {
+            super.getTableCellRendererComponent(table, value, selected, focus, row, col);
+            setBorder(new EmptyBorder(0, 18, 0, 5));
+            setFont(new Font("Segoe UI", column == 0 || column == 3 ? Font.BOLD : Font.PLAIN, 13));
+            Color fg = column == 0 ? BLUE : NAVY;
+            if (column == 2) {
+                fg = "Easy".equals(value) ? new Color(32, 145, 96) :
+                    "Medium".equals(value) ? new Color(199, 134, 12) : new Color(209, 77, 95);
+            }
+            setForeground(fg);
+            setBackground(selected ? new Color(226, 234, 255) :
+                    row % 2 == 0 ? Color.WHITE : new Color(249, 250, 254));
+            return this;
+        }
     }
 }
