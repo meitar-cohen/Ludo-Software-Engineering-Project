@@ -120,7 +120,7 @@ public class GameHistoryView extends JFrame {
         JPanel actions = new JPanel();
         actions.setOpaque(false);
         actions.setLayout(new BorderLayout());
-        JButton back = new ActionButton("Back", false);
+        JButton back = new ActionButton("Back");
         back.addActionListener(e -> { new MainMenuView().setVisible(true); dispose(); });
         actions.add(back, BorderLayout.CENTER);
 
@@ -186,9 +186,9 @@ public class GameHistoryView extends JFrame {
     }
 
     private static class ActionButton extends JButton {
-        private final boolean primary; private boolean hovered;
-        ActionButton(String text, boolean primary) {
-            super(text); this.primary = primary;
+        private boolean hovered;
+        ActionButton(String text) {
+            super(text);
             setFont(new Font("Segoe UI", Font.BOLD, 15)); setOpaque(false); setContentAreaFilled(false); setBorderPainted(false); setFocusPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); setPreferredSize(new Dimension(400, 46)); setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
             addMouseListener(new MouseAdapter() { public void mouseEntered(MouseEvent e) { hovered = true; repaint(); } public void mouseExited(MouseEvent e) { hovered = false; repaint(); } });
