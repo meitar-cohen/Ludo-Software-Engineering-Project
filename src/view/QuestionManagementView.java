@@ -218,8 +218,12 @@ public class QuestionManagementView extends JFrame {
         background.add(card);
         add(background);
 
-     // פתיחת טופס להוספת שאלה חדשה
-        private void showAddQuestionDialog() {
+        // הצגת השאלות בטבלה
+        refreshTable();
+    }
+
+    // פתיחת טופס להוספת שאלה חדשה
+    private void showAddQuestionDialog() {
 
             JTextField questionField = new JTextField(25);
 
@@ -438,18 +442,17 @@ public class QuestionManagementView extends JFrame {
                     "Question updated successfully!"
                 );
 
+                
+                
                 return;
             }
         }
-        
-        
-        // הצגת השאלות בטבלה
-        refreshTable();
-    }
 
     // טעינת שאלות לדוגמה
     private void loadSampleQuestions() {
 
+    	
+    	
         questions.add(new Question(
             "Which language runs on the JVM?",
             new String[]{"Python", "Java", "HTML", "SQL"},

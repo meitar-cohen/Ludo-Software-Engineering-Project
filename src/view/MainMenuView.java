@@ -80,6 +80,26 @@ public class MainMenuView extends JFrame {
             dispose();
         });
 
+        
+        
+     // מעבר למסך כניסת מנהל
+        questionManagementButton.addActionListener(e -> {
+
+            // יצירת מסך התחברות למנהל
+            AdminLoginView adminLoginView = new AdminLoginView(() -> {
+
+                // פתיחת מסך ניהול שאלות לאחר התחברות מוצלחת
+                QuestionManagementView managementView =
+                    new QuestionManagementView();
+
+                managementView.setVisible(true);
+            });
+
+            adminLoginView.setVisible(true);
+            dispose();
+        });
+        
+        
         // Exit
         exitButton.addActionListener(e -> dispose());
 
