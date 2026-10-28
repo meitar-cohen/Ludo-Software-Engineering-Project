@@ -48,9 +48,9 @@ public class EndGameScreen extends JPanel {
             card.add(Box.createVerticalStrut(8));
         }
 
-        JLabel saved = new JLabel("The game was saved to the game history.");
+        JLabel saved = new JLabel("Prototype preview - ranking is illustrative; results are not saved.");
         saved.setFont(new Font("Arial", Font.ITALIC, 14));
-        saved.setForeground(new Color(30, 140, 60));
+        saved.setForeground(new Color(110, 115, 130));
         saved.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(Box.createVerticalStrut(15));
         card.add(saved);
@@ -69,8 +69,37 @@ public class EndGameScreen extends JPanel {
             new MainMenuView().setVisible(true);
             if (w != null) w.dispose();
         });
+
+        // כפתור מעבר למסך היסטוריית המשחקים
+        JButton historyButton = new JButton("View Game History");
+        historyButton.setFont(new Font("Arial", Font.BOLD, 16));
+        historyButton.setBackground(PRIMARY);
+        historyButton.setForeground(Color.WHITE);
+        historyButton.setFocusPainted(false);
+        historyButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        historyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        historyButton.setMaximumSize(new Dimension(300, 50));
+        historyButton.setPreferredSize(new Dimension(300, 50));
+
+        // פתיחת מסך ההיסטוריה וסגירת חלון המשחק
+        historyButton.addActionListener(e -> {
+            Window w = SwingUtilities.getWindowAncestor(this);
+            new GameHistoryView().setVisible(true);
+            if (w != null) {
+                w.dispose();
+            }
+        });
+
+        card.add(historyButton);
+        card.add(Box.createVerticalStrut(12));
         card.add(menu);
+
 
         add(card);
     }
+    
+    
+
+
+ 
 }

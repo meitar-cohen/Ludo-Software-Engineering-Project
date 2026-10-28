@@ -72,6 +72,13 @@ public class MainMenuView extends JFrame {
             gameSetupView.setVisible(true);
             dispose();
         });
+        
+        // מעבר למסך היסטוריית המשחקים
+        gameHistoryButton.addActionListener(e -> {
+            GameHistoryView gameHistoryView = new GameHistoryView();
+            gameHistoryView.setVisible(true);
+            dispose();
+        });
 
         // Exit
         exitButton.addActionListener(e -> dispose());
