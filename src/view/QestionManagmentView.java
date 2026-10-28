@@ -143,11 +143,71 @@ public class QuestionManagementView extends JFrame {
             showEditQuestionDialog(modelRow);
         });
 
+        
+     // כפתור למחיקת שאלה קיימת
+        JButton deleteButton = new JButton("Delete Question");
+        deleteButton.setFont(new Font("Arial", Font.BOLD, 16));
+        deleteButton.setForeground(Color.WHITE);
+        deleteButton.setBackground(new Color(210, 70, 70));
+        deleteButton.setFocusPainted(false);
+        deleteButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        deleteButton.setPreferredSize(new Dimension(180, 45));
+
+        // מחיקת השאלה שנבחרה בטבלה
+        deleteButton.addActionListener(e -> {
+
+            int selectedRow = table.getSelectedRow();
+
+            // בדיקה שהמנהל בחר שאלה למחיקה
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a question to delete.",
+                    "No Question Selected",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // מציאת השאלה המתאימה ברשימה
+            int questionIndex = table.convertRowIndexToModel(selectedRow);
+            Question selectedQuestion = questions.get(questionIndex);
+
+            // בקשת אישור לפני מחיקת השאלה
+            int confirmation = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete this question?\n\n"
+                    + selectedQuestion.text,
+                "Confirm Deletion",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+
+            // ביטול המחיקה אם המנהל לא אישר
+            if (confirmation != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            // מחיקת השאלה מהמאגר הזמני
+            questions.remove(questionIndex);
+
+            // עדכון הטבלה לאחר המחיקה
+            refreshTable();
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Question deleted successfully!"
+            );
+        });
+        
+        
+        
         // אזור תחתון לכפתורים
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         bottomPanel.setBackground(Color.WHITE);
         bottomPanel.add(addButton);
         bottomPanel.add(editButton);
+        bottomPanel.add(deleteButton);
         bottomPanel.add(backButton);
 
         // סידור רכיבי המסך
