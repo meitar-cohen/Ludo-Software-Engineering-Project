@@ -51,7 +51,7 @@ public class EndGameScreen extends JPanel {
         card.add(saved);
         card.add(Box.createVerticalStrut(25));
 
-        JButton menu = new JButton("Back to Main Menu");
+        JButton menu = new JButton("Back");
         menu.setFont(new Font("Arial", Font.BOLD, 16));
         menu.setBackground(PRIMARY);
         menu.setForeground(Color.WHITE);

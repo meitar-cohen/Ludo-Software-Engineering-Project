@@ -123,7 +123,7 @@ public class GameSetupView extends JFrame {
         continueButton = new ActionButton("Continue", true);
         continueButton.addActionListener(e -> openPlayerDetails());
 
-        backButton = new ActionButton("Back to Main Menu", false);
+        backButton = new ActionButton("Back", false);
         backButton.addActionListener(e -> {
             new MainMenuView().setVisible(true);
             dispose();
