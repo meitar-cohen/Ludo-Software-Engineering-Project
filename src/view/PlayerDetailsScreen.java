@@ -83,7 +83,34 @@ public class PlayerDetailsScreen extends JPanel {
             }
         });
         
-        bottomPanel.add(startGameBtn, BorderLayout.SOUTH);
+     // כפתור חזרה להגדרות המשחק
+        JButton backButton = new JButton("Back to Game Setup");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setBackground(new Color(110, 115, 130));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFocusPainted(false);
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // חזרה למסך הגדרות המשחק
+        backButton.addActionListener(e -> {
+            Window currentWindow = SwingUtilities.getWindowAncestor(this);
+
+            GameSetupView setupView = new GameSetupView();
+            setupView.setVisible(true);
+
+            if (currentWindow != null) {
+                currentWindow.dispose();
+            }
+        });
+
+        // הצגת שני הכפתורים זה לצד זה
+        JPanel buttonsPanel = new JPanel(new GridLayout(1, 2, 12, 0));
+        buttonsPanel.setBackground(BACKGROUND);
+
+        buttonsPanel.add(backButton);
+        buttonsPanel.add(startGameBtn);
+
+        bottomPanel.add(buttonsPanel, BorderLayout.SOUTH);
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
