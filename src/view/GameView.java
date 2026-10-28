@@ -329,25 +329,144 @@ public class GameView extends JPanel {
         board.animateFirstPieceTo(target, this::passTurn);
     }
 
+    // חלון הפתעה מעוצב - תרחיש הדגמה בלבד
     private void showSurprise() {
-        JPanel msg = new JPanel(new BorderLayout(0, 8));
-        JLabel head = new JLabel("SURPRISE!", SwingConstants.CENTER);
-        head.setOpaque(true);
-        head.setBackground(BoardPanel.SURPRISE);
-        head.setForeground(Color.WHITE);
-        head.setFont(new Font("Arial", Font.BOLD, 22));
-        head.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel text = new JLabel("<html><div style='width:260px;text-align:center'>"
-            + "The drawn event is:<br><b>Go back 3 squares</b></div></html>", SwingConstants.CENTER);
-        text.setFont(new Font("Arial", Font.PLAIN, 16));
-        msg.add(head, BorderLayout.NORTH);
-        msg.add(text, BorderLayout.CENTER);
-        JOptionPane.showMessageDialog(this, msg, "Surprise square", JOptionPane.PLAIN_MESSAGE);
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(owner, "Ludo - Surprise",
+                Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setUndecorated(true);
+        dialog.setSize(510, 390);
+        dialog.setResizable(false);
 
+        // רקע סגול-כחול המתאים לשאר מסכי המשחק
+        JPanel background = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setPaint(new GradientPaint(0, 0, new Color(29, 31, 78),
+                        getWidth(), getHeight(), new Color(72, 57, 130)));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+            }
+        };
+
+        // כרטיס לבן עם פינות מעוגלות
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 28, 28);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        card.setOpaque(false);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(446, 334));
+        card.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
+
+        JLabel tag = new JLabel("SURPRISE SQUARE");
+        tag.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tag.setForeground(new Color(108, 78, 198));
+        tag.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel title = new JLabel("A LITTLE DETOUR!");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(new Color(30, 37, 79));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("You've landed on a surprise square.");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(103, 111, 136));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // הצגת השפעת ההפתעה בצורה ברורה, ללא אייקון נוצץ
+        JPanel eventCard = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(242, 237, 255));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        eventCard.setOpaque(false);
+        eventCard.setAlignmentX(Component.CENTER_ALIGNMENT);
+        eventCard.setPreferredSize(new Dimension(386, 88));
+        eventCard.setMaximumSize(new Dimension(386, 88));
+
+        JPanel eventText = new JPanel();
+        eventText.setOpaque(false);
+        eventText.setLayout(new BoxLayout(eventText, BoxLayout.Y_AXIS));
+        JLabel amount = new JLabel("-3 SQUARES");
+        amount.setFont(new Font("Segoe UI", Font.BOLD, 27));
+        amount.setForeground(new Color(105, 70, 199));
+        amount.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel explanation = new JLabel("Move your piece three squares back");
+        explanation.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        explanation.setForeground(new Color(91, 95, 119));
+        explanation.setAlignmentX(Component.CENTER_ALIGNMENT);
+        eventText.add(amount);
+        eventText.add(Box.createVerticalStrut(4));
+        eventText.add(explanation);
+        eventCard.add(eventText);
+
+        // כפתור המשך מעוגל עם אפקט מעבר עכבר
+        JButton continueButton = new JButton("CONTINUE GAME") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getModel().isRollover()
+                        ? new Color(86, 77, 218) : new Color(77, 104, 241));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        continueButton.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        continueButton.setForeground(Color.WHITE);
+        continueButton.setFocusPainted(false);
+        continueButton.setOpaque(false);
+        continueButton.setContentAreaFilled(false);
+        continueButton.setBorderPainted(false);
+        continueButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        continueButton.setPreferredSize(new Dimension(288, 46));
+        continueButton.setMaximumSize(new Dimension(288, 46));
+        continueButton.addActionListener(e -> dialog.dispose());
+
+        card.add(tag);
+        card.add(Box.createVerticalStrut(12));
+        card.add(title);
+        card.add(Box.createVerticalStrut(7));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(18));
+        card.add(eventCard);
+        card.add(Box.createVerticalStrut(22));
+        card.add(continueButton);
+
+        background.add(card);
+        dialog.setContentPane(background);
+        dialog.getRootPane().setDefaultButton(continueButton);
+        dialog.setLocationRelativeTo(owner);
+        dialog.setVisible(true);
+
+        // לוגיקת ההפתעה המקורית נשמרת ללא שינוי
         int target = Math.max(0, board.getFirstPieceStep() - 3);
         setStatus("Surprise! Move back 3 squares.");
         board.animateFirstPieceTo(target, this::finishScenario);
     }
+
 
     private void passTurn() {
         currentPlayer = 1;
