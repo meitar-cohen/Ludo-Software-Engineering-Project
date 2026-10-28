@@ -99,9 +99,22 @@ public class QuestionManagementView extends JFrame {
             dispose();
         });
 
+     // כפתור להוספת שאלה חדשה
+        JButton addButton = new JButton("Add Question");
+        addButton.setFont(new Font("Arial", Font.BOLD, 16));
+        addButton.setForeground(Color.WHITE);
+        addButton.setBackground(PRIMARY);
+        addButton.setFocusPainted(false);
+        addButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        addButton.setPreferredSize(new Dimension(180, 45));
+
+        // פתיחת טופס הוספת שאלה
+        addButton.addActionListener(e -> showAddQuestionDialog());
+
         // אזור תחתון לכפתורים
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.add(addButton);
         bottomPanel.add(backButton);
 
         // סידור רכיבי המסך
@@ -112,6 +125,107 @@ public class QuestionManagementView extends JFrame {
         background.add(card);
         add(background);
 
+     // פתיחת טופס להוספת שאלה חדשה
+        private void showAddQuestionDialog() {
+
+            JTextField questionField = new JTextField(25);
+
+            // ארבע תשובות אפשריות
+            JTextField[] answerFields = new JTextField[4];
+
+            JPanel form = new JPanel(new GridLayout(0, 1, 5, 7));
+
+            form.add(new JLabel("Question:"));
+            form.add(questionField);
+
+            for (int i = 0; i < 4; i++) {
+                answerFields[i] = new JTextField(25);
+
+                form.add(new JLabel("Answer " + (i + 1) + ":"));
+                form.add(answerFields[i]);
+            }
+
+            // בחירת התשובה הנכונה
+            JComboBox<String> correctAnswerBox = new JComboBox<>(
+                new String[]{"Answer 1", "Answer 2", "Answer 3", "Answer 4"}
+            );
+
+            form.add(new JLabel("Correct Answer:"));
+            form.add(correctAnswerBox);
+
+            // בחירת רמת הקושי
+            JComboBox<String> difficultyBox = new JComboBox<>(
+                new String[]{"Easy", "Medium", "Hard"}
+            );
+
+            form.add(new JLabel("Difficulty:"));
+            form.add(difficultyBox);
+
+            // הצגת הטופס עד לשמירת נתונים תקינים או ביטול
+            while (true) {
+
+                int result = JOptionPane.showConfirmDialog(
+                    this,
+                    form,
+                    "Add New Question",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+                );
+
+                // ביטול הפעולה ללא הוספת שאלה
+                if (result != JOptionPane.OK_OPTION) {
+                    return;
+                }
+
+                String questionText = questionField.getText().trim();
+                String[] answers = new String[4];
+
+                boolean valid = !questionText.isEmpty();
+
+                // בדיקה שכל ארבע התשובות מולאו
+                for (int i = 0; i < 4; i++) {
+                    answers[i] = answerFields[i].getText().trim();
+
+                    if (answers[i].isEmpty()) {
+                        valid = false;
+                    }
+                }
+
+                if (!valid) {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Please fill in the question and all four answers.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                    continue;
+                }
+
+                int correctIndex = correctAnswerBox.getSelectedIndex();
+
+                String difficulty =
+                    (String) difficultyBox.getSelectedItem();
+
+                // הוספת השאלה למאגר הזמני בזיכרון
+                questions.add(new Question(
+                    questionText,
+                    answers,
+                    correctIndex,
+                    difficulty
+                ));
+
+                // עדכון הטבלה באופן מיידי
+                refreshTable();
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Question added successfully!"
+                );
+
+                return;
+            }
+        }
+        
         // הצגת השאלות בטבלה
         refreshTable();
     }
