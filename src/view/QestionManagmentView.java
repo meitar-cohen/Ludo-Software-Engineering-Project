@@ -110,11 +110,44 @@ public class QuestionManagementView extends JFrame {
 
         // פתיחת טופס הוספת שאלה
         addButton.addActionListener(e -> showAddQuestionDialog());
+        
+     // כפתור לעריכת שאלה קיימת
+        JButton editButton = new JButton("Edit Question");
+        editButton.setFont(new Font("Arial", Font.BOLD, 16));
+        editButton.setForeground(Color.WHITE);
+        editButton.setBackground(PRIMARY);
+        editButton.setFocusPainted(false);
+        editButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        editButton.setPreferredSize(new Dimension(180, 45));
+
+        // פתיחת טופס עריכה עבור השאלה שנבחרה בטבלה
+        editButton.addActionListener(e -> {
+
+            int selectedRow = table.getSelectedRow();
+
+            // בדיקה שהמשתמש בחר שאלה
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a question to edit.",
+                    "No Question Selected",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // קבלת מיקום השאלה ברשימה
+            int modelRow = table.convertRowIndexToModel(selectedRow);
+
+            // פתיחת טופס העריכה
+            showEditQuestionDialog(modelRow);
+        });
 
         // אזור תחתון לכפתורים
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         bottomPanel.setBackground(Color.WHITE);
         bottomPanel.add(addButton);
+        bottomPanel.add(editButton);
         bottomPanel.add(backButton);
 
         // סידור רכיבי המסך
@@ -225,6 +258,130 @@ public class QuestionManagementView extends JFrame {
                 return;
             }
         }
+        
+        
+     // פתיחת טופס לעריכת שאלה קיימת
+        private void showEditQuestionDialog(int questionIndex) {
+
+            // שליפת השאלה שנבחרה
+            Question existingQuestion = questions.get(questionIndex);
+
+            // הצגת נוסח השאלה הנוכחי
+            JTextField questionField = new JTextField(
+                existingQuestion.text, 25
+            );
+
+            // הצגת ארבע התשובות הנוכחיות
+            JTextField[] answerFields = new JTextField[4];
+
+            JPanel form = new JPanel(new GridLayout(0, 1, 5, 7));
+
+            form.add(new JLabel("Question:"));
+            form.add(questionField);
+
+            for (int i = 0; i < 4; i++) {
+
+                answerFields[i] = new JTextField(
+                    existingQuestion.options[i], 25
+                );
+
+                form.add(new JLabel("Answer " + (i + 1) + ":"));
+                form.add(answerFields[i]);
+            }
+
+            // בחירת התשובה הנכונה הנוכחית
+            JComboBox<String> correctAnswerBox = new JComboBox<>(
+                new String[]{
+                    "Answer 1",
+                    "Answer 2",
+                    "Answer 3",
+                    "Answer 4"
+                }
+            );
+
+            correctAnswerBox.setSelectedIndex(
+                existingQuestion.correctIndex
+            );
+
+            form.add(new JLabel("Correct Answer:"));
+            form.add(correctAnswerBox);
+
+            // הצגת רמת הקושי הנוכחית
+            JComboBox<String> difficultyBox = new JComboBox<>(
+                new String[]{"Easy", "Medium", "Hard"}
+            );
+
+            difficultyBox.setSelectedItem(existingQuestion.difficulty);
+
+            form.add(new JLabel("Difficulty:"));
+            form.add(difficultyBox);
+
+            // הצגת הטופס עד לשמירת נתונים תקינים או ביטול
+            while (true) {
+
+                int result = JOptionPane.showConfirmDialog(
+                    this,
+                    form,
+                    "Edit Question",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+                );
+
+                // ביטול העריכה ללא שינוי השאלה
+                if (result != JOptionPane.OK_OPTION) {
+                    return;
+                }
+
+                String questionText = questionField.getText().trim();
+                String[] answers = new String[4];
+
+                boolean valid = !questionText.isEmpty();
+
+                // בדיקה שכל ארבע התשובות מולאו
+                for (int i = 0; i < 4; i++) {
+
+                    answers[i] = answerFields[i].getText().trim();
+
+                    if (answers[i].isEmpty()) {
+                        valid = false;
+                    }
+                }
+
+                if (!valid) {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Please fill in the question and all four answers.",
+                        "Missing Information",
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                    continue;
+                }
+
+                int correctIndex = correctAnswerBox.getSelectedIndex();
+
+                String difficulty =
+                    (String) difficultyBox.getSelectedItem();
+
+                // עדכון השאלה הקיימת בזיכרון
+                questions.set(questionIndex, new Question(
+                    questionText,
+                    answers,
+                    correctIndex,
+                    difficulty
+                ));
+
+                // רענון הטבלה לאחר העריכה
+                refreshTable();
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Question updated successfully!"
+                );
+
+                return;
+            }
+        }
+        
         
         // הצגת השאלות בטבלה
         refreshTable();
