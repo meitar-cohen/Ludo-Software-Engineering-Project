@@ -34,9 +34,9 @@ public class BoardPanel extends JPanel {
     public static final Color Q_HARD = new Color(235, 100, 100);
     public static final Color SURPRISE = new Color(150, 90, 200);
 
-    private static final Color BOARD_BG = new Color(250, 246, 235);
-    private static final Color CELL_BORDER = new Color(170, 175, 185);
-    private static final Color HIGHLIGHT = new Color(255, 140, 0);
+    private static final Color BOARD_BG = new Color(243, 246, 255);
+    private static final Color CELL_BORDER = new Color(201, 209, 228);
+    private static final Color HIGHLIGHT = new Color(255, 171, 56);
 
     private enum Type { START, STAR, ARROW, QUESTION, SURPRISE }
 
@@ -96,7 +96,7 @@ public class BoardPanel extends JPanel {
 
         buildBoard();
 
-        setBackground(new Color(245, 247, 250));
+        setBackground(new Color(244, 247, 255));
         setPreferredSize(new Dimension(700, 700));
 
         addMouseListener(new MouseAdapter() {
@@ -363,6 +363,9 @@ public class BoardPanel extends JPanel {
         int ox = originX();
         int oy = originY();
 
+        // Soft frame around the board, matching the navy-and-lavender UI.
+        g2.setColor(new Color(31, 47, 95, 18));
+        g2.fillRoundRect(ox - 7, oy - 5, cs * size + 14, cs * size + 14, 18, 18);
         g2.setColor(BOARD_BG);
         g2.fillRect(ox, oy, cs * size, cs * size);
 
@@ -415,12 +418,13 @@ public class BoardPanel extends JPanel {
                 CORNER_COLORS[p1Corner], highlightBoard);
         }
 
-        g2.setColor(new Color(90, 95, 110));
-        g2.setStroke(new BasicStroke(2f));
+        g2.setColor(new Color(126, 140, 173));
+        g2.setStroke(new BasicStroke(1.6f));
         g2.drawRect(ox, oy, cs * size, cs * size);
         g2.dispose();
     }
 
+    // Track cells remain in the exact same positions, so click detection is unchanged.
     private void drawCell(Graphics2D g2, Point p, Color fill) {
         int cs = cellSize();
         int x = originX() + p.x * cs;
@@ -428,27 +432,42 @@ public class BoardPanel extends JPanel {
         g2.setColor(fill);
         g2.fillRect(x, y, cs, cs);
         g2.setColor(CELL_BORDER);
-        g2.setStroke(new BasicStroke(1f));
+        g2.setStroke(new BasicStroke(0.9f));
         g2.drawRect(x, y, cs, cs);
     }
 
+    // Pastel castles with a clean inner area; piece positions are untouched.
     private void drawCastle(Graphics2D g2, int corner) {
         int cs = cellSize();
         Point o = castleOrigin(corner);
         int x = originX() + o.x * cs;
         int y = originY() + o.y * cs;
+        int side = cs * 6;
         Color color = CORNER_COLORS[corner];
-        g2.setColor(activeCorner[corner] ? color : lighter(lighter(color)));
-        g2.fillRect(x, y, cs * 6, cs * 6);
-        g2.setColor(Color.WHITE);
-        g2.fillRoundRect(x + cs, y + cs, cs * 4, cs * 4, cs, cs);
-        g2.setColor(color.darker());
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.drawRect(x, y, cs * 6, cs * 6);
+        Color base = activeCorner[corner] ? lighter(color) : lighter(lighter(color));
+        Color glow = activeCorner[corner] ? new Color(246, 250, 255) : new Color(250, 251, 255);
+
+        g2.setPaint(new GradientPaint(x, y, base, x + side, y + side,
+            activeCorner[corner] ? lighter(lighter(color)) : new Color(245, 248, 254)));
+        g2.fillRoundRect(x + 1, y + 1, side - 2, side - 2, Math.max(12, cs), Math.max(12, cs));
+        g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 120));
+        g2.setStroke(new BasicStroke(1.7f));
+        g2.drawRoundRect(x + 1, y + 1, side - 2, side - 2, Math.max(12, cs), Math.max(12, cs));
+
+        g2.setColor(glow);
+        g2.fillRoundRect(x + cs, y + cs, cs * 4, cs * 4, Math.max(12, cs), Math.max(12, cs));
+        g2.setColor(new Color(255, 255, 255, 210));
+        g2.setStroke(new BasicStroke(1.4f));
+        g2.drawRoundRect(x + cs, y + cs, cs * 4, cs * 4, Math.max(12, cs), Math.max(12, cs));
+
         for (int s = 0; s < 4; s++) {
             double[] c = slotCenter(corner, s);
-            g2.setColor(lighter(color));
-            g2.fill(new Ellipse2D.Double(c[0] - cs * 0.6, c[1] - cs * 0.6, cs * 1.2, cs * 1.2));
+            double r = cs * 0.61;
+            g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 55));
+            g2.fill(new Ellipse2D.Double(c[0] - r, c[1] - r, r * 2, r * 2));
+            g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 85));
+            g2.setStroke(new BasicStroke(1.2f));
+            g2.draw(new Ellipse2D.Double(c[0] - r, c[1] - r, r * 2, r * 2));
         }
     }
 
@@ -464,6 +483,23 @@ public class BoardPanel extends JPanel {
         fillTriangle(g2, YELLOW, x0, y0, x1, y0, cx, cy);
         fillTriangle(g2, BLUE, x1, y0, x1, y1, cx, cy);
         fillTriangle(g2, RED, x0, y1, x1, y1, cx, cy);
+
+        // The finish marker stays within the middle 3x3 cells.
+        int d = Math.max(18, (int) (cs * 1.04));
+        int x = (int) cx - d / 2;
+        int y = (int) cy - d / 2;
+        g2.setColor(new Color(22, 34, 77, 50));
+        g2.fillOval(x + 2, y + 3, d, d);
+        g2.setColor(Color.WHITE);
+        g2.fillOval(x, y, d, d);
+        g2.setColor(new Color(35, 53, 105));
+        g2.setStroke(new BasicStroke(1.4f));
+        g2.drawOval(x, y, d, d);
+        g2.setFont(new Font("Segoe UI", Font.BOLD, Math.max(9, (int) (cs * 0.29))));
+        FontMetrics fm = g2.getFontMetrics();
+        String goal = "GOAL";
+        g2.drawString(goal, (int) cx - fm.stringWidth(goal)/2,
+            (int) cy + (fm.getAscent()-fm.getDescent())/2);
     }
 
     private void fillTriangle(Graphics2D g2, Color c, double ax, double ay,
@@ -479,54 +515,77 @@ public class BoardPanel extends JPanel {
         g2.draw(t);
     }
 
+    // Clear, high-contrast marks on every special square.
+    // Easy has START / STAR / ARROW; Medium and Hard additionally have ? and !.
     private void drawSpecial(Graphics2D g2, Point p, Special s) {
         int cs = cellSize();
         int x = originX() + p.x * cs;
         int y = originY() + p.y * cs;
+        int pad = Math.max(2, (int) (cs * 0.09));
+        int tile = cs - pad * 2;
+
         switch (s.type) {
             case START:
-                drawCell(g2, p, lighter(s.color));
-                drawCenteredText(g2, "#", x, y, cs, s.color.darker());
+                drawCell(g2, p, lighter(lighter(s.color)));
+                g2.setColor(s.color);
+                g2.fillRoundRect(x + pad, y + pad, tile, tile, Math.max(6, cs / 4), Math.max(6, cs / 4));
+                drawCenteredText(g2, "#", x, y, cs, Color.WHITE, 0.68);
                 break;
             case STAR:
-                drawStar(g2, x + cs / 2.0, y + cs / 2.0, cs * 0.38);
+                drawCell(g2, p, new Color(255, 241, 196));
+                g2.setColor(new Color(255, 255, 255, 170));
+                g2.fillOval(x + pad, y + pad, tile, tile);
+                drawStar(g2, x + cs / 2.0, y + cs / 2.0, cs * 0.39);
                 break;
             case ARROW:
-                drawArrow(g2, x, y, cs, s.dir, s.color);
+                drawCell(g2, p, lighter(lighter(s.color)));
+                g2.setColor(new Color(255, 255, 255, 150));
+                g2.fillRoundRect(x + pad, y + pad, tile, tile, Math.max(6, cs / 4), Math.max(6, cs / 4));
+                drawArrow(g2, x, y, cs, s.dir, s.color.darker());
                 break;
             case QUESTION:
-                drawCell(g2, p, s.color);
-                drawCenteredText(g2, "?", x, y, cs, Color.WHITE);
+                Color questionFill = s.color.equals(Q_EASY) ? new Color(48, 167, 111)
+                    : (s.color.equals(Q_MEDIUM) ? new Color(220, 157, 32) : new Color(221, 69, 90));
+                drawCell(g2, p, lighter(lighter(s.color)));
+                g2.setColor(questionFill);
+                g2.fillRoundRect(x + pad, y + pad, tile, tile, Math.max(6, cs / 4), Math.max(6, cs / 4));
+                drawCenteredText(g2, "?", x, y, cs, Color.WHITE, 0.72);
                 break;
             case SURPRISE:
-                drawCell(g2, p, s.color);
-                drawCenteredText(g2, "!", x, y, cs, Color.WHITE);
+                drawCell(g2, p, new Color(234, 223, 255));
+                g2.setColor(new Color(134, 76, 211));
+                g2.fillRoundRect(x + pad, y + pad, tile, tile, Math.max(6, cs / 4), Math.max(6, cs / 4));
+                drawCenteredText(g2, "!", x, y, cs, Color.WHITE, 0.72);
                 break;
             default:
                 break;
         }
     }
 
-    private void drawCenteredText(Graphics2D g2, String text, int x, int y, int cs, Color color) {
-        g2.setFont(new Font("Arial", Font.BOLD, Math.max(9, (int) (cs * 0.65))));
+    private void drawCenteredText(Graphics2D g2, String text, int x, int y,
+                                  int cs, Color color, double scale) {
+        int fontSize = Math.max(12, (int) (cs * scale));
+        g2.setFont(new Font("Segoe UI", Font.BOLD, fontSize));
         FontMetrics fm = g2.getFontMetrics();
         g2.setColor(color);
-        g2.drawString(text, x + (cs - fm.stringWidth(text)) / 2, y + (cs + fm.getAscent() - fm.getDescent()) / 2);
+        g2.drawString(text, x + (cs - fm.stringWidth(text)) / 2,
+            y + (cs + fm.getAscent() - fm.getDescent()) / 2);
     }
 
     private void drawStar(Graphics2D g2, double cx, double cy, double r) {
         Path2D star = new Path2D.Double();
         for (int i = 0; i < 10; i++) {
-            double radius = (i % 2 == 0) ? r : r * 0.45;
+            double radius = (i % 2 == 0) ? r : r * 0.46;
             double angle = -Math.PI / 2 + i * Math.PI / 5;
             double px = cx + Math.cos(angle) * radius;
             double py = cy + Math.sin(angle) * radius;
             if (i == 0) star.moveTo(px, py); else star.lineTo(px, py);
         }
         star.closePath();
-        g2.setColor(new Color(255, 200, 30));
+        g2.setColor(new Color(251, 181, 37));
         g2.fill(star);
-        g2.setColor(new Color(170, 120, 0));
+        g2.setColor(new Color(158, 107, 19));
+        g2.setStroke(new BasicStroke(1.5f));
         g2.draw(star);
     }
 
@@ -534,15 +593,15 @@ public class BoardPanel extends JPanel {
         Graphics2D a = (Graphics2D) g2.create();
         a.translate(x + cs / 2.0, y + cs / 2.0);
         a.rotate(dir * Math.PI / 2);
-        double l = cs * 0.36;
+        double l = cs * 0.37;
         Path2D arrow = new Path2D.Double();
-        arrow.moveTo(-l, -l * 0.25);
-        arrow.lineTo(0, -l * 0.25);
-        arrow.lineTo(0, -l * 0.7);
+        arrow.moveTo(-l, -l * 0.27);
+        arrow.lineTo(0, -l * 0.27);
+        arrow.lineTo(0, -l * 0.69);
         arrow.lineTo(l, 0);
-        arrow.lineTo(0, l * 0.7);
-        arrow.lineTo(0, l * 0.25);
-        arrow.lineTo(-l, l * 0.25);
+        arrow.lineTo(0, l * 0.69);
+        arrow.lineTo(0, l * 0.27);
+        arrow.lineTo(-l, l * 0.27);
         arrow.closePath();
         a.setColor(color);
         a.fill(arrow);
@@ -552,18 +611,24 @@ public class BoardPanel extends JPanel {
     private void drawPiece(Graphics2D g2, double cx, double cy, int cs, Color color, boolean highlighted) {
         double r = cs * 0.42;
         if (highlighted) {
+            g2.setColor(new Color(255, 178, 67, 80));
+            g2.fill(new Ellipse2D.Double(cx - r - cs * 0.21, cy - r - cs * 0.21,
+                2 * (r + cs * 0.21), 2 * (r + cs * 0.21)));
             g2.setColor(HIGHLIGHT);
-            g2.setStroke(new BasicStroke(Math.max(2f, cs * 0.12f)));
+            g2.setStroke(new BasicStroke(Math.max(2f, cs * 0.10f)));
             g2.draw(new Ellipse2D.Double(cx - r - cs * 0.12, cy - r - cs * 0.12,
                 2 * (r + cs * 0.12), 2 * (r + cs * 0.12)));
         }
-        g2.setColor(color);
+        g2.setColor(new Color(25, 32, 69, 55));
+        g2.fill(new Ellipse2D.Double(cx - r + cs * 0.055, cy - r + cs * 0.10, r * 2, r * 2));
+        g2.setPaint(new GradientPaint((float) (cx - r), (float) (cy - r), lighter(color),
+            (float) (cx + r), (float) (cy + r), color));
         g2.fill(new Ellipse2D.Double(cx - r, cy - r, 2 * r, 2 * r));
-        g2.setColor(color.darker().darker());
-        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(color.darker());
+        g2.setStroke(new BasicStroke(1.6f));
         g2.draw(new Ellipse2D.Double(cx - r, cy - r, 2 * r, 2 * r));
-        g2.setColor(new Color(255, 255, 255, 170));
-        g2.fill(new Ellipse2D.Double(cx - r * 0.35, cy - r * 0.35, r * 0.7, r * 0.7));
+        g2.setColor(new Color(255, 255, 255, 185));
+        g2.fill(new Ellipse2D.Double(cx - r * 0.53, cy - r * 0.62, r * 0.76, r * 0.76));
     }
 
     private static Color lighter(Color c) {
