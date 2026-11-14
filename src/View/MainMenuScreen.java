@@ -59,7 +59,7 @@ public class MainMenuScreen extends JFrame {
     }
 
     private static Image loadAppIcon() {
-        try (InputStream iconStream = MainMenuScreen.class.getResourceAsStream("/resources/app-icon.png")) {
+        try (InputStream iconStream = MainMenuScreen.class.getResourceAsStream("/Resources/app-icon.png")) {
             if (iconStream == null) {
                 return null;
             }
