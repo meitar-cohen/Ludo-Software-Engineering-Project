@@ -10,8 +10,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class MainMenuScreen extends JFrame {
 
@@ -53,22 +53,23 @@ public class MainMenuScreen extends JFrame {
     }
 
     public static void applyAppIcon(Window window) {
-        window.setIconImage(APP_ICON);
+        if (APP_ICON != null) {
+            window.setIconImage(APP_ICON);
+        }
     }
 
     private static Image loadAppIcon() {
-        File iconFile = new File("data/app-icon.png");
-        if (!iconFile.isFile()) {
-            throw new IllegalStateException("Application icon not found: " + iconFile.getPath());
-        }
-        try {
-            Image icon = ImageIO.read(iconFile);
+        try (InputStream iconStream = MainMenuScreen.class.getResourceAsStream("/Resources/app-icon.png")) {
+            if (iconStream == null) {
+                return null;
+            }
+            Image icon = ImageIO.read(iconStream);
             if (icon == null) {
-                throw new IllegalStateException("Application icon is not a supported image.");
+                return null;
             }
             return icon;
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to read the application icon.", e);
+            return null;
         }
     }
 
