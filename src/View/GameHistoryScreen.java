@@ -41,6 +41,7 @@ public class GameHistoryScreen extends JFrame {
         this.historyError = controller.getLastError();
         this.historyFileName = controller.getHistoryFileName();
         setTitle("Ludo - Game History");
+        MainMenuScreen.applyAppIcon(this);
         setSize(1090, 730);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

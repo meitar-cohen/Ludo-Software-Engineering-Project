@@ -1,5 +1,6 @@
 package View;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -9,6 +10,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.io.IOException;
 
 public class MainMenuScreen extends JFrame {
 
@@ -20,9 +23,11 @@ public class MainMenuScreen extends JFrame {
     private static final Color NAVY = new Color(12, 20, 49);
     private static final Color BLUE = new Color(75, 110, 248);
     private static final Color MUTED = new Color(111, 123, 151);
+    private static final Image APP_ICON = loadAppIcon();
 
     public MainMenuScreen() {
         setTitle("Ludo - Play. Learn. Win.");
+        applyAppIcon(this);
         setSize(1120, 690);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -45,6 +50,26 @@ public class MainMenuScreen extends JFrame {
             dispose();
         });
         exitButton.addActionListener(e -> dispose());
+    }
+
+    public static void applyAppIcon(Window window) {
+        window.setIconImage(APP_ICON);
+    }
+
+    private static Image loadAppIcon() {
+        File iconFile = new File("data/app-icon.png");
+        if (!iconFile.isFile()) {
+            throw new IllegalStateException("Application icon not found: " + iconFile.getPath());
+        }
+        try {
+            Image icon = ImageIO.read(iconFile);
+            if (icon == null) {
+                throw new IllegalStateException("Application icon is not a supported image.");
+            }
+            return icon;
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read the application icon.", e);
+        }
     }
 
     private JPanel createMenuCard() {
