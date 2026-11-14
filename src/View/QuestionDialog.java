@@ -22,6 +22,7 @@ public class QuestionDialog extends JDialog {
 
     public QuestionDialog(Window owner, GameController gameController) {
         super(owner, "Ludo - Question Challenge", ModalityType.APPLICATION_MODAL);
+        MainMenuScreen.applyAppIcon(this);
         String[] options = gameController.getQuestionOptions();
         answerButtons = new AnswerButton[options.length];
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);

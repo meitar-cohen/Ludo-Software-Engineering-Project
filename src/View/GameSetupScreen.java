@@ -26,6 +26,7 @@ public class GameSetupScreen extends JFrame {
 
     public GameSetupScreen() {
         setTitle("Ludo - New Game");
+        MainMenuScreen.applyAppIcon(this);
         setSize(1120, 690);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -133,6 +134,7 @@ public class GameSetupScreen extends JFrame {
         String difficulty = (String) difficultyComboBox.getSelectedItem();
         if (count == null || difficulty == null) return;
         JFrame detailsFrame = new JFrame("Ludo - Player Setup");
+        MainMenuScreen.applyAppIcon(detailsFrame);
         detailsFrame.setSize(700, 600);
         detailsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         detailsFrame.setLocationRelativeTo(null);
